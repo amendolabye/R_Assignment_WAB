@@ -5,4 +5,31 @@ output: html_document
 
 R Assignment
 
+
+--- installs packages from tidyverse
+--- reads fang genotypes file into data frame
+--- reads snp positions into data frame
+--- selects SNP_ID, Chromosome, and Position columns to new data frame
+--- filters genotypes to extract maize genotype data to new data frame, str_detect detects presence of match for desired specimen groups, filters those
+--- filters genotypes to extract teosinte genotype data to new data frame, str_detect detects presence of match for desired specimen groups, filters those
+--- removes header info from maize snps, transposes, defines as data frame, turns row names into columns, renames as SNP_ID to facilitate joining to snps
+--- removes header info from teosinte snps, transposes, defines as data frame, turns row names into columns, renames as SNP_ID to facilitate joining to snps
+--- merges SNP info with maize genotype data
+--- merges SNP info with teosinte genotype data
+
+```{r}
+rm(list = ls())
 library(tidyverse)
+fang_genos <- read_tsv("Data/fang_et_al_genotypes.txt")
+snp_pos <- read_tsv("Data/snp_position.txt")
+snps <- select(snp_pos, SNP_ID, Chromosome, Position)
+maize_genos <- fang_genos %>% 
+    filter(str_detect(Group, "ZMMIL|ZMMLR|ZMMMR"))
+teosinte_genos <- fang_genos %>% 
+    filter(str_detect(Group, "ZMPBA|ZMPIL|ZMPJA"))
+maize_transposed <- rownames_to_column(as.data.frame(t(select(maize_genos, -(Sample_ID:Group)))), var = "SNP_ID")
+teosinte_transposed <- rownames_to_column(as.data.frame(t(select(teosinte_genos, -(Sample_ID:Group)))), var = "SNP_ID")
+maize_snps <- merge(snps, maize_transposed)
+teosinte_snps <- merge(snps, teosinte_transposed)
+```
+
