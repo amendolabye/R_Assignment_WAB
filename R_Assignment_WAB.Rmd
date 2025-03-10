@@ -17,6 +17,33 @@ R Assignment
 --- merges SNP info with maize genotype data
 --- merges SNP info with teosinte genotype data
 
+maize_snps <- maize_snps[!apply(maize_snps, 1, function(row) any(row %in% c("multiple", "unknown"))), ]
+
+  removes any row containing the value "multiple" or "unknown" leaving only snps with known chromosome and position
+  
+  maize_snps <- arrange(maize_snps, as.numeric(Chromosome), as.numeric(Position))
+
+  sorts snps by chromosome numerically, then by position numerically
+  
+  maizesplit <- split(maize_snps, maize_snps$Chromosome)
+
+for(i in names(maizesplit)) {
+    assign(paste0("maize_", i), maizesplit[[i]])
+}
+  above functions split maize into separate data frames for each chromosome - run after sorting
+  
+  for other 10 files, will need to desc_maize_snps<-desc(maize_snps, as.numeric(Chromosome), as.numeric(Position)) and then split into desc_maize_i files - also need to replace ?/? with -/-
+  
+  working order 
+  - remove multiple/unknown to X_snps df, sort ascending, split into files and print to .txt for each
+  - take X_snps df (post removal of unknown/multiple), replace ?/? with -/-, sort descending, split into separate chr files, print to _desc.txt
+  
+  
+  need to add data inspection to beginning
+  need to do data visualization
+  
+  
+  
 ```{r}
 rm(list = ls())
 library(tidyverse)
