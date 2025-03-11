@@ -22,9 +22,14 @@ R Assignment
 --- sorts teosinte SNPs by chromosome, then position ascending, numerically
 --- sorts maize SNPs by chromosome, then position descending, numerically to separate df 
 --- sorts teosinte SNPs by chromosome, then position descending, numerically to separate df 
+--- replaces ?/? with -/- in descending maize SNPs file
+--- replaces ?/? with -/- in descending teosinte SNPs file
+
+
 
 TODO
   maizesplit <- split(maize_snps, maize_snps$Chromosome)
+  maizesplit_desc <- split(maize_snps_desc, maize_snps_desc$Chromosome)
 
 for(i in names(maizesplit)) {
     assign(paste0("maize_", i), maizesplit[[i]])
@@ -34,12 +39,11 @@ for(i in names(maizesplit)) {
   for other 10 files, will need to desc_maize_snps<-desc(maize_snps, as.numeric(Chromosome), as.numeric(Position)) and then split into desc_maize_i files - also need to replace ?/? with -/-
   
   working order 
-  - split into files and print to .txt for each
-  - take X_snps df (post removal of unknown/multiple), replace ?/? with -/-, sort descending, split into separate chr files, print to _desc.txt
+  - split into files and print to .txt for each maize/teosinte ascending/descending
+ - visualize
+ - data inspection
   
-  
-  need to add data inspection to beginning
-  need to do data visualization
+for visualization, have one file with teosinte/maize snps, including group info? filter as before for maize/teo groups into one file, transpose (-(Sample_ID:JG_OTU)), merge, filter unknown/multiple - can visualize by group - make sure group column named as group if making one large file
 
   
 ```{r}
@@ -62,5 +66,7 @@ maize_snps <- arrange(maize_snps, as.numeric(Chromosome), as.numeric(Position))
 teosinte_snps <- arrange(teosinte_snps, as.numeric(Chromosome), as.numeric(Position))
 maize_snps_desc <- arrange(maize_snps, as.numeric(Chromosome), desc(as.numeric(Position)))
 teosinte_snps_desc <- arrange(teosinte_snps, as.numeric(Chromosome), desc(as.numeric(Position)))
+maize_snps_desc <- maize_snps_desc %>% mutate(across(everything(), ~ gsub("\\?/\\?", "-/-", .)))
+teosinte_snps_desc <- teosinte_snps_desc %>% mutate(across(everything(), ~ gsub("\\?/\\?", "-/-", .)))
 ```
 
