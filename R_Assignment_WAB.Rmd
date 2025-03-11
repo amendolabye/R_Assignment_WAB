@@ -16,15 +16,14 @@ R Assignment
 --- removes header info from teosinte snps, transposes, defines as data frame, turns row names into columns, renames as SNP_ID to facilitate joining to snps
 --- merges SNP info with maize genotype data
 --- merges SNP info with teosinte genotype data
+--- removes SNPs with multiple or unknown positions from maize SNPs
+--- removes SNPs with multiple or unknown positions from teosinte SNPs
+--- sorts maize SNPs by chromosome, then position ascending, numerically
+--- sorts teosinte SNPs by chromosome, then position ascending, numerically
+--- sorts maize SNPs by chromosome, then position descending, numerically to separate df 
+--- sorts teosinte SNPs by chromosome, then position descending, numerically to separate df 
 
-maize_snps <- maize_snps[!apply(maize_snps, 1, function(row) any(row %in% c("multiple", "unknown"))), ]
-
-  removes any row containing the value "multiple" or "unknown" leaving only snps with known chromosome and position
-  
-  maize_snps <- arrange(maize_snps, as.numeric(Chromosome), as.numeric(Position))
-
-  sorts snps by chromosome numerically, then by position numerically
-  
+TODO
   maizesplit <- split(maize_snps, maize_snps$Chromosome)
 
 for(i in names(maizesplit)) {
@@ -35,14 +34,13 @@ for(i in names(maizesplit)) {
   for other 10 files, will need to desc_maize_snps<-desc(maize_snps, as.numeric(Chromosome), as.numeric(Position)) and then split into desc_maize_i files - also need to replace ?/? with -/-
   
   working order 
-  - remove multiple/unknown to X_snps df, sort ascending, split into files and print to .txt for each
+  - split into files and print to .txt for each
   - take X_snps df (post removal of unknown/multiple), replace ?/? with -/-, sort descending, split into separate chr files, print to _desc.txt
   
   
   need to add data inspection to beginning
   need to do data visualization
-  
-  
+
   
 ```{r}
 rm(list = ls())
@@ -58,5 +56,11 @@ maize_transposed <- rownames_to_column(as.data.frame(t(select(maize_genos, -(Sam
 teosinte_transposed <- rownames_to_column(as.data.frame(t(select(teosinte_genos, -(Sample_ID:Group)))), var = "SNP_ID")
 maize_snps <- merge(snps, maize_transposed)
 teosinte_snps <- merge(snps, teosinte_transposed)
+maize_snps <- maize_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
+teosinte_snps <- teosinte_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
+maize_snps <- arrange(maize_snps, as.numeric(Chromosome), as.numeric(Position))
+teosinte_snps <- arrange(teosinte_snps, as.numeric(Chromosome), as.numeric(Position))
+maize_snps_desc <- arrange(maize_snps, as.numeric(Chromosome), desc(as.numeric(Position)))
+teosinte_snps_desc <- arrange(teosinte_snps, as.numeric(Chromosome), desc(as.numeric(Position)))
 ```
 
