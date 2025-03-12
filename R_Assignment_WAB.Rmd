@@ -5,70 +5,82 @@ output:
   html_document: default
 ---
 
-R Assignment
 
-
---- installs packages from tidyverse
---- reads fang genotypes file into data frame
---- reads snp positions into data frame
---- selects SNP_ID, Chromosome, and Position columns to new data frame
---- filters genotypes to extract maize genotype data to new data frame, str_detect detects presence of match for desired specimen groups, filters those
---- filters genotypes to extract teosinte genotype data to new data frame, str_detect detects presence of match for desired specimen groups, filters those
---- removes header info from maize snps, transposes, defines as data frame, turns row names into columns, renames as SNP_ID to facilitate joining to snps
---- removes header info from teosinte snps, transposes, defines as data frame, turns row names into columns, renames as SNP_ID to facilitate joining to snps
---- merges SNP info with maize genotype data
---- merges SNP info with teosinte genotype data
-
---- sorts maize SNPs by chromosome, then position ascending, numerically
---- sorts teosinte SNPs by chromosome, then position ascending, numerically
---- sorts maize SNPs by chromosome, then position descending, numerically to separate df 
---- sorts teosinte SNPs by chromosome, then position descending, numerically to separate df 
---- replaces ?/? with -/- in descending maize SNPs file
---- replaces ?/? with -/- in descending teosinte SNPs file
-
-
-save(maize_1, file="Result_Files/maize_1.RData")
-
-
-  
   working order 
-  - split into files and print to .txt for each maize/teosinte ascending/descending
+
  - visualize
  - data inspection
   
 for visualization, have one file with teosinte/maize snps, including group info? filter as before for maize/teo groups into one file, transpose (-(Sample_ID:JG_OTU)), merge, filter unknown/multiple - can visualize by group - make sure group column named as group if making one large file
 
-removed from workflow - unnecessary filtering? - can use final 40 files to graph
+### R Assignment
 
---- removes SNPs with multiple or unknown positions from maize SNPs
---- removes SNPs with multiple or unknown positions from teosinte SNPs
+# Initializing Tidyverse, loading source data files
 
-maize_snps <- maize_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
-teosinte_snps <- teosinte_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
-  
 ```{r}
 rm(list = ls())
 library(tidyverse)
 fang_genos <- read_tsv("Data/fang_et_al_genotypes.txt")
 snp_pos <- read_tsv("Data/snp_position.txt")
+```
+# Data Inspection
+
+insert data inspection code - head, str, etc.
+
+
+# Data Processing
+
+Selects desired columns from SNP information - SNP_ID, Chromosome, Position
+Filters maize groups to separate data frame - ZMMIL, ZMMLR, ZMMMR
+Filters teosinte groups to separate data frame - ZMPBA, ZMPIL, ZMPJA
+
+```{r}
 snps <- select(snp_pos, SNP_ID, Chromosome, Position)
 maize_genos <- fang_genos %>% 
     filter(str_detect(Group, "ZMMIL|ZMMLR|ZMMMR"))
 teosinte_genos <- fang_genos %>% 
     filter(str_detect(Group, "ZMPBA|ZMPIL|ZMPJA"))
+```
+
+Selects needed columns from maize/teosinte genotype data frames, transposes and enforces as a data frame, and converts row names to column, given column title "SNP_ID" (SNP IDs were column titles in original data set so transposing turned them into row titles, making the rownames a column allows us to use it as the common column for joining to SNP position data)
+
+```{r}
 maize_transposed <- rownames_to_column(as.data.frame(t(select(maize_genos, -(Sample_ID:Group)))), var = "SNP_ID")
 teosinte_transposed <- rownames_to_column(as.data.frame(t(select(teosinte_genos, -(Sample_ID:Group)))), var = "SNP_ID")
+```
+
+Merges transposed genotype data to snp position data for both maize, teosinte. Common column used to join is SNP_ID
+
+```{r}
 maize_snps <- merge(snps, maize_transposed)
 teosinte_snps <- merge(snps, teosinte_transposed)
-maize_snps <- arrange(maize_snps, as.numeric(Chromosome), as.numeric(Position))
-teosinte_snps <- arrange(teosinte_snps, as.numeric(Chromosome), as.numeric(Position))
-maize_snps_desc <- arrange(maize_snps, as.numeric(Chromosome), desc(as.numeric(Position)))
-teosinte_snps_desc <- arrange(teosinte_snps, as.numeric(Chromosome), desc(as.numeric(Position)))
+```
+
+Filters out SNPs with unknown or multiple positions - result files contain only SNPs with known position on a known chromosome
+
+```{r}
+maize_snps <- maize_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
+teosinte_snps <- teosinte_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
+```
+
+Numerically sorts files by SNP position ascending, creates new set of data frames sorting files numerically by SNP position descending
+
+```{r}
+maize_snps <- arrange(maize_snps, as.numeric(Position))
+teosinte_snps <- arrange(teosinte_snps, as.numeric(Position))
+maize_snps_desc <- arrange(maize_snps, desc(as.numeric(Position)))
+teosinte_snps_desc <- arrange(teosinte_snps, desc(as.numeric(Position)))
+```
+
+Replaces ?/? genotypes with -/- in descending sorted files
+
+```{r}
 maize_snps_desc <- maize_snps_desc %>% mutate(across(everything(), ~ gsub("\\?/\\?", "-/-", .)))
 teosinte_snps_desc <- teosinte_snps_desc %>% mutate(across(everything(), ~ gsub("\\?/\\?", "-/-", .)))
-
 ```
+
 Separates maize SNP data into data frames for each chromosome, both ascending and descending by position, saves as .RData files in /Result_Files folder
+
 ```{r}
 maize_1 <- filter(maize_snps, Chromosome == 1)
 save(maize_1, file="Result_Files/maize_1.RData")
@@ -112,7 +124,9 @@ save(maize_9_desc, file="Result_Files/maize_9_desc.RData")
 maize_10_desc <- filter(maize_snps_desc, Chromosome == 10)
 save(maize_10_desc, file="Result_Files/maize_10_desc.RData")
 ```
+
 Separates teosinte SNP data into data frames for each chromosome, both ascending and descending by position, saves as .RData files in /Result_Files folder
+
 ```{r}
 teosinte_1 <- filter(teosinte_snps, Chromosome == 1)
 save(teosinte_1, file="Result_Files/teosinte_1.RData")
@@ -156,4 +170,6 @@ save(teosinte_9_desc, file="Result_Files/teosinte_9_desc.RData")
 teosinte_10_desc <- filter(teosinte_snps_desc, Chromosome == 10)
 save(teosinte_10_desc, file="Result_Files/teosinte_10_desc.RData")
 ```
+
+# Data Visualization
 
