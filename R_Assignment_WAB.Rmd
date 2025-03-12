@@ -16,8 +16,7 @@ R Assignment
 --- removes header info from teosinte snps, transposes, defines as data frame, turns row names into columns, renames as SNP_ID to facilitate joining to snps
 --- merges SNP info with maize genotype data
 --- merges SNP info with teosinte genotype data
---- removes SNPs with multiple or unknown positions from maize SNPs
---- removes SNPs with multiple or unknown positions from teosinte SNPs
+
 --- sorts maize SNPs by chromosome, then position ascending, numerically
 --- sorts teosinte SNPs by chromosome, then position ascending, numerically
 --- sorts maize SNPs by chromosome, then position descending, numerically to separate df 
@@ -26,17 +25,9 @@ R Assignment
 --- replaces ?/? with -/- in descending teosinte SNPs file
 
 
+save(maize_1, file="Result_Files/maize_1.RData")
 
-TODO
-  maizesplit <- split(maize_snps, maize_snps$Chromosome)
-  maizesplit_desc <- split(maize_snps_desc, maize_snps_desc$Chromosome)
 
-for(i in names(maizesplit)) {
-    assign(paste0("maize_", i), maizesplit[[i]])
-}
-  above functions split maize into separate data frames for each chromosome - run after sorting
-  
-  for other 10 files, will need to desc_maize_snps<-desc(maize_snps, as.numeric(Chromosome), as.numeric(Position)) and then split into desc_maize_i files - also need to replace ?/? with -/-
   
   working order 
   - split into files and print to .txt for each maize/teosinte ascending/descending
@@ -45,6 +36,13 @@ for(i in names(maizesplit)) {
   
 for visualization, have one file with teosinte/maize snps, including group info? filter as before for maize/teo groups into one file, transpose (-(Sample_ID:JG_OTU)), merge, filter unknown/multiple - can visualize by group - make sure group column named as group if making one large file
 
+removed from workflow - unnecessary filtering? - can use final 40 files to graph
+
+--- removes SNPs with multiple or unknown positions from maize SNPs
+--- removes SNPs with multiple or unknown positions from teosinte SNPs
+
+maize_snps <- maize_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
+teosinte_snps <- teosinte_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
   
 ```{r}
 rm(list = ls())
@@ -60,13 +58,56 @@ maize_transposed <- rownames_to_column(as.data.frame(t(select(maize_genos, -(Sam
 teosinte_transposed <- rownames_to_column(as.data.frame(t(select(teosinte_genos, -(Sample_ID:Group)))), var = "SNP_ID")
 maize_snps <- merge(snps, maize_transposed)
 teosinte_snps <- merge(snps, teosinte_transposed)
-maize_snps <- maize_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
-teosinte_snps <- teosinte_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
 maize_snps <- arrange(maize_snps, as.numeric(Chromosome), as.numeric(Position))
 teosinte_snps <- arrange(teosinte_snps, as.numeric(Chromosome), as.numeric(Position))
 maize_snps_desc <- arrange(maize_snps, as.numeric(Chromosome), desc(as.numeric(Position)))
 teosinte_snps_desc <- arrange(teosinte_snps, as.numeric(Chromosome), desc(as.numeric(Position)))
 maize_snps_desc <- maize_snps_desc %>% mutate(across(everything(), ~ gsub("\\?/\\?", "-/-", .)))
 teosinte_snps_desc <- teosinte_snps_desc %>% mutate(across(everything(), ~ gsub("\\?/\\?", "-/-", .)))
+
+```
+Separates maize SNP data into data frames for each chromosome, both ascending and descending by position, saves as .RData files in /Result_Files folder
+```{r}
+maize_1 <- filter(maize_snps, Chromosome == 1)
+save(maize_1, file="Result_Files/maize_1.RData")
+maize_2 <- filter(maize_snps, Chromosome == 2)
+save(maize_2, file="Result_Files/maize_2.RData")
+maize_3 <- filter(maize_snps, Chromosome == 3)
+save(maize_3, file="Result_Files/maize_3.RData")
+maize_4 <- filter(maize_snps, Chromosome == 4)
+save(maize_4, file="Result_Files/maize_4.RData")
+maize_5 <- filter(maize_snps, Chromosome == 5)
+save(maize_5, file="Result_Files/maize_5.RData")
+maize_6 <- filter(maize_snps, Chromosome == 6)
+save(maize_6, file="Result_Files/maize_6.RData")
+maize_7 <- filter(maize_snps, Chromosome == 7)
+save(maize_7, file="Result_Files/maize_7.RData")
+maize_8 <- filter(maize_snps, Chromosome == 8)
+save(maize_8, file="Result_Files/maize_8.RData")
+maize_9 <- filter(maize_snps, Chromosome == 9)
+save(maize_9, file="Result_Files/maize_9.RData")
+maize_10 <- filter(maize_snps, Chromosome == 10)
+save(maize_10, file="Result_Files/maize_10.RData")
+
+maize_1_desc <- filter(maize_snps_desc, Chromosome == 1)
+save(maize_1_desc, file="Result_Files/maize_1_desc.RData")
+maize_2_desc <- filter(maize_snps_desc, Chromosome == 2)
+save(maize_2_desc, file="Result_Files/maize_2_desc.RData")
+maize_3_desc <- filter(maize_snps_desc, Chromosome == 3)
+save(maize_3_desc, file="Result_Files/maize_3_desc.RData")
+maize_4_desc <- filter(maize_snps_desc, Chromosome == 4)
+save(maize_4_desc, file="Result_Files/maize_4_desc.RData")
+maize_5_desc <- filter(maize_snps_desc, Chromosome == 5)
+save(maize_5_desc, file="Result_Files/maize_5_desc.RData")
+maize_6_desc <- filter(maize_snps_desc, Chromosome == 6)
+save(maize_6_desc, file="Result_Files/maize_6_desc.RData")
+maize_7_desc <- filter(maize_snps_desc, Chromosome == 7)
+save(maize_7_desc, file="Result_Files/maize_7_desc.RData")
+maize_8_desc <- filter(maize_snps_desc, Chromosome == 8)
+save(maize_8_desc, file="Result_Files/maize_8_desc.RData")
+maize_9_desc <- filter(maize_snps_desc, Chromosome == 9)
+save(maize_9_desc, file="Result_Files/maize_9_desc.RData")
+maize_10_desc <- filter(maize_snps_desc, Chromosome == 10)
+save(maize_10_desc, file="Result_Files/maize_10_desc.RData")
 ```
 
