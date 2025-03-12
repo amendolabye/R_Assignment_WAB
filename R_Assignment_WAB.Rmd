@@ -1,6 +1,8 @@
 ---
 title: "R_Assignment_WAB"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 R Assignment
@@ -109,5 +111,49 @@ maize_9_desc <- filter(maize_snps_desc, Chromosome == 9)
 save(maize_9_desc, file="Result_Files/maize_9_desc.RData")
 maize_10_desc <- filter(maize_snps_desc, Chromosome == 10)
 save(maize_10_desc, file="Result_Files/maize_10_desc.RData")
+```
+Separates teosinte SNP data into data frames for each chromosome, both ascending and descending by position, saves as .RData files in /Result_Files folder
+```{r}
+teosinte_1 <- filter(teosinte_snps, Chromosome == 1)
+save(teosinte_1, file="Result_Files/teosinte_1.RData")
+teosinte_2 <- filter(teosinte_snps, Chromosome == 2)
+save(teosinte_2, file="Result_Files/teosinte_2.RData")
+teosinte_3 <- filter(teosinte_snps, Chromosome == 3)
+save(teosinte_3, file="Result_Files/teosinte_3.RData")
+teosinte_4 <- filter(teosinte_snps, Chromosome == 4)
+save(teosinte_4, file="Result_Files/teosinte_4.RData")
+teosinte_5 <- filter(teosinte_snps, Chromosome == 5)
+save(teosinte_5, file="Result_Files/teosinte_5.RData")
+teosinte_6 <- filter(teosinte_snps, Chromosome == 6)
+save(teosinte_6, file="Result_Files/teosinte_6.RData")
+teosinte_7 <- filter(teosinte_snps, Chromosome == 7)
+save(teosinte_7, file="Result_Files/teosinte_7.RData")
+teosinte_8 <- filter(teosinte_snps, Chromosome == 8)
+save(teosinte_8, file="Result_Files/teosinte_8.RData")
+teosinte_9 <- filter(teosinte_snps, Chromosome == 9)
+save(teosinte_9, file="Result_Files/teosinte_9.RData")
+teosinte_10 <- filter(teosinte_snps, Chromosome == 10)
+save(teosinte_10, file="Result_Files/teosinte_10.RData")
+
+teosinte_1_desc <- filter(teosinte_snps_desc, Chromosome == 1)
+save(teosinte_1_desc, file="Result_Files/teosinte_1_desc.RData")
+teosinte_2_desc <- filter(teosinte_snps_desc, Chromosome == 2)
+save(teosinte_2_desc, file="Result_Files/teosinte_2_desc.RData")
+teosinte_3_desc <- filter(teosinte_snps_desc, Chromosome == 3)
+save(teosinte_3_desc, file="Result_Files/teosinte_3_desc.RData")
+teosinte_4_desc <- filter(teosinte_snps_desc, Chromosome == 4)
+save(teosinte_4_desc, file="Result_Files/teosinte_4_desc.RData")
+teosinte_5_desc <- filter(teosinte_snps_desc, Chromosome == 5)
+save(teosinte_5_desc, file="Result_Files/teosinte_5_desc.RData")
+teosinte_6_desc <- filter(teosinte_snps_desc, Chromosome == 6)
+save(teosinte_6_desc, file="Result_Files/teosinte_6_desc.RData")
+teosinte_7_desc <- filter(teosinte_snps_desc, Chromosome == 7)
+save(teosinte_7_desc, file="Result_Files/teosinte_7_desc.RData")
+teosinte_8_desc <- filter(teosinte_snps_desc, Chromosome == 8)
+save(teosinte_8_desc, file="Result_Files/teosinte_8_desc.RData")
+teosinte_9_desc <- filter(teosinte_snps_desc, Chromosome == 9)
+save(teosinte_9_desc, file="Result_Files/teosinte_9_desc.RData")
+teosinte_10_desc <- filter(teosinte_snps_desc, Chromosome == 10)
+save(teosinte_10_desc, file="Result_Files/teosinte_10_desc.RData")
 ```
 
