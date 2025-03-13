@@ -1,16 +1,14 @@
 ---
 title: "R_Assignment_WAB"
 output:
-  pdf_document: default
   html_document: default
 ---
 
+working order
 
-  working order 
+-   visualize
+-   data inspection
 
- - visualize
- - data inspection
-  
 for visualization, have one file with teosinte/maize snps, including group info? filter as before for maize/teo groups into one file, transpose (-(Sample_ID:JG_OTU)), merge, filter unknown/multiple - can visualize by group - make sure group column named as group if making one large file
 
 ### R Assignment
@@ -23,16 +21,21 @@ library(tidyverse)
 fang_genos <- read_tsv("Data/fang_et_al_genotypes.txt")
 snp_pos <- read_tsv("Data/snp_position.txt")
 ```
+
 # Data Inspection
 
-insert data inspection code - head, str, etc.
+We can see what the start of each file looks like, and see total dimensions.
 
+```{r}
+head(fang_genos)
+dim(fang_genos)
+head(snp_pos)
+dim(snp_pos)
+```
 
 # Data Processing
 
-Selects desired columns from SNP information - SNP_ID, Chromosome, Position
-Filters maize groups to separate data frame - ZMMIL, ZMMLR, ZMMMR
-Filters teosinte groups to separate data frame - ZMPBA, ZMPIL, ZMPJA
+Selects desired columns from SNP information - SNP_ID, Chromosome, Position Filters maize groups to separate data frame - ZMMIL, ZMMLR, ZMMMR Filters teosinte groups to separate data frame - ZMPBA, ZMPIL, ZMPJA
 
 ```{r}
 snps <- select(snp_pos, SNP_ID, Chromosome, Position)
@@ -49,7 +52,7 @@ maize_transposed <- rownames_to_column(as.data.frame(t(select(maize_genos, -(Sam
 teosinte_transposed <- rownames_to_column(as.data.frame(t(select(teosinte_genos, -(Sample_ID:Group)))), var = "SNP_ID")
 ```
 
-Merges transposed genotype data to snp position data for both maize, teosinte. Common column used to join is SNP_ID
+Merges transposed genotype data to SNP position data for both maize, teosinte. Common column used to join is SNP_ID
 
 ```{r}
 maize_snps <- merge(snps, maize_transposed)
@@ -75,8 +78,8 @@ teosinte_snps_desc <- arrange(teosinte_snps, desc(as.numeric(Position)))
 Replaces ?/? genotypes with -/- in descending sorted files
 
 ```{r}
-maize_snps_desc <- maize_snps_desc %>% mutate(across(everything(), ~ gsub("\\?/\\?", "-/-", .)))
-teosinte_snps_desc <- teosinte_snps_desc %>% mutate(across(everything(), ~ gsub("\\?/\\?", "-/-", .)))
+maize_snps_desc[maize_snps_desc == "?/?"] <- "-/-"
+teosinte_snps_desc[teosinte_snps_desc == "?/?"] <- "-/-"
 ```
 
 Separates maize SNP data into data frames for each chromosome, both ascending and descending by position, saves as .RData files in /Result_Files folder
@@ -172,4 +175,5 @@ save(teosinte_10_desc, file="Result_Files/teosinte_10_desc.RData")
 ```
 
 # Data Visualization
+
 
