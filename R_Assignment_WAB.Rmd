@@ -2,6 +2,8 @@
 title: "R_Assignment_WAB"
 output:
   html_document: default
+editor_options: 
+  chunk_output_type: console
 ---
 
 working order
@@ -10,6 +12,8 @@ working order
 -   data inspection
 
 for visualization, have one file with teosinte/maize snps, including group info? filter as before for maize/teo groups into one file, transpose (-(Sample_ID:JG_OTU)), merge, filter unknown/multiple - can visualize by group - make sure group column named as group if making one large file
+
+need to label axes for graphs - what to use for y-axis on SNP distribution? Set to chromosome value but normalize all to 1 for equal height?
 
 ### R Assignment
 
@@ -176,4 +180,21 @@ save(teosinte_10_desc, file="Result_Files/teosinte_10_desc.RData")
 
 # Data Visualization
 
+Plotting position of SNPs on X axis for both maize and teosinte, no difference can be seen across each chromosome in each species - no difference in SNP distribution
+
+```{r}
+ggplot(data=maize_snps, mapping=aes(x=Position, y=as.numeric(Chromosome))) + geom_point() + facet_wrap(~as.numeric(Chromosome))
+ggplot(data=teosinte_snps, mapping=aes(x=Position, y=as.numeric(Chromosome))) + geom_point() + facet_wrap(~as.numeric(Chromosome))
+```
+
+Reformats SNP data files for maize, teosinte - pivots genotype data from columns to rows, assigns each to sample. Filters by genotype to denote zygosity, adds column. Adds column to indicate group - allows for comparisons between groups, samples.
+
+```{r}
+maize_vis <- pivot_longer(maize_snps, cols = !1:3, names_to = "Sample", values_to = "Genotype")
+maize_vis$Zygosity <- case_when(maize_vis$Genotype == "A/A" ~ "homozygous", maize_vis$Genotype == "C/C" ~ "homozygous", maize_vis$Genotype == "G/G" ~ "homozygous", maize_vis$Genotype == "T/T" ~ "homozygous", maize_vis$Genotype == "?/?" ~ "missing", .default = "heterozygous" )
+teosinte_vis <- pivot_longer(teosinte_snps, cols = !1:3, names_to = "Sample", values_to = "Genotype")
+teosinte_vis$Zygosity <- case_when(teosinte_vis$Genotype == "A/A" ~ "homozygous", teosinte_vis$Genotype == "C/C" ~ "homozygous", teosinte_vis$Genotype == "G/G" ~ "homozygous", teosinte_vis$Genotype == "T/T" ~ "homozygous", teosinte_vis$Genotype == "?/?" ~ "missing", .default = "heterozygous" )
+maize_vis$Group <- "Maize"
+teosinte_vis$Group <- "Teosinte"
+```
 
