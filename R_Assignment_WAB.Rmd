@@ -180,11 +180,11 @@ save(teosinte_10_desc, file="Result_Files/teosinte_10_desc.RData")
 
 # Data Visualization
 
-Plotting position of SNPs on X axis for both maize and teosinte, no difference can be seen across each chromosome in each species - no difference in SNP distribution
+Plotting position of SNPs on X axis from pter to qter for both maize and teosinte. No difference can be seen across each chromosome in each species - no difference in SNP distribution between maize and teosinte.
 
 ```{r}
-ggplot(data=maize_snps, mapping=aes(x=Position, y=as.numeric(Chromosome))) + geom_point() + facet_wrap(~as.numeric(Chromosome), scales="free_y") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank())
-ggplot(data=teosinte_snps, mapping=aes(x=Position, y=as.numeric(Chromosome))) + geom_point() + facet_wrap(~as.numeric(Chromosome), scales="free_y") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank())
+ggplot(data=maize_snps, mapping=aes(x=Position, y=as.numeric(Chromosome))) + geom_point() + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free_y") + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Maize Chromosome")
+ggplot(data=teosinte_snps, mapping=aes(x=Position, y=as.numeric(Chromosome))) + geom_point() + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free_y") + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Teosinte Chromosome")
 ```
 
 Reformats SNP data files for maize, teosinte - pivots genotype data from columns to rows, assigns each to sample. Filters by genotype to denote zygosity, adds column. Adds column to indicate group - allows for comparisons between groups, samples.
@@ -203,5 +203,11 @@ Combines maize and teosinte visualization data frames into one for comparisons b
 ```{r}
 combined_vis <- rbind(maize_vis, teosinte_vis)
 ```
+
+```{r}
+combined_vis$zygosity_value <- ifelse(combined_vis$Zygosity == "homozygous", 1,
+         ifelse(combined_vis$Zygosity == "heterozygous", 0, NA))
+```
+
 
 
