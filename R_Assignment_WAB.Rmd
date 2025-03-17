@@ -211,11 +211,30 @@ ggplot(data= combined_vis) + geom_bar(mapping = aes(x = as.numeric(Chromosome), 
 ```
 
 
-
-Assigns a value of 1 to homozygous SNPs, 0 to heterozygous SNPs, and NA for missing SNPs
+Are runs of homozygosity seen in either teosinte or maize? Calculating mean homozygosity at each SNP position - fraction of homozygous SNPs at each position. 
+Assigns a value of 1 to homozygous SNPs, 0 to heterozygous SNPs, and NA for missing SNPs 
 ```{r}
-combined_vis$zygosity_value <- ifelse(combined_vis$Zygosity == "homozygous", 1,
-         ifelse(combined_vis$Zygosity == "heterozygous", 0, NA))
+maize_vis$zygosity_value <- ifelse(maize_vis$Zygosity == "homozygous", 1,
+         ifelse(maize_vis$Zygosity == "heterozygous", 0, NA))
+teosinte_vis$zygosity_value <- ifelse(teosinte_vis$Zygosity == "homozygous", 1,
+         ifelse(teosinte_vis$Zygosity == "heterozygous", 0, NA))
+```
+
+Takes mean value of homozygosity at each position, equal to the fraction of homozygous SNPs at each position, for each position on each chromosome across both groups
+
+```{r}
+maize_avg_homozygosity <- maize_vis %>%
+     group_by(Chromosome, Position) %>%
+     summarise(avg_homozygosity = mean(zygosity_value, na.rm = TRUE))
+teosinte_avg_homozygosity <- teosinte_vis %>%
+     group_by(Chromosome, Position) %>%
+     summarise(avg_homozygosity = mean(zygosity_value, na.rm = TRUE))
+```
+
+Graphs average homozygosity value at each position, across each chromosome, for both maize and teosinte
+
+```{r}
+
 ```
 
 
