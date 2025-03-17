@@ -204,6 +204,15 @@ Combines maize and teosinte visualization data frames into one for comparisons b
 combined_vis <- rbind(maize_vis, teosinte_vis)
 ```
 
+Plots proportion of heterozygous, homozygous, and missing SNPs for each chromosome in maize and teosinte samples. Visualizing shows teosinte data appear to contain larger fraction heterozygous SNPs than maize data. 
+
+```{r}
+ggplot(data= combined_vis) + geom_bar(mapping = aes(x = as.numeric(Chromosome), fill=Zygosity), position = "fill") + facet_wrap(~Group) + scale_x_continuous(breaks = seq(0, 10, by = 1)) + xlab("Chromosome") + ylab("Proportion")
+```
+
+
+
+Assigns a value of 1 to homozygous SNPs, 0 to heterozygous SNPs, and NA for missing SNPs
 ```{r}
 combined_vis$zygosity_value <- ifelse(combined_vis$Zygosity == "homozygous", 1,
          ifelse(combined_vis$Zygosity == "heterozygous", 0, NA))
