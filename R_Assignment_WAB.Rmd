@@ -183,8 +183,9 @@ save(teosinte_10_desc, file="Result_Files/teosinte_10_desc.RData")
 Plotting position of SNPs on X axis from pter to qter for both maize and teosinte. No difference can be seen across each chromosome in each species - no difference in SNP distribution between maize and teosinte.
 
 ```{r}
-ggplot(data=maize_snps, mapping=aes(x=Position, y=as.numeric(Chromosome))) + geom_point() + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free_y") + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Maize Chromosome")
-ggplot(data=teosinte_snps, mapping=aes(x=Position, y=as.numeric(Chromosome))) + geom_point() + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free_y") + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Teosinte Chromosome")
+ggplot(data=maize_snps, mapping=aes(x=as.numeric(Position), y=as.numeric(Chromosome))) + geom_point(size=0.5, col="red") + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free") + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Maize Chromosome") + xlab("Position")
+
+ggplot(data=teosinte_snps, mapping=aes(x=as.numeric(Position), y=as.numeric(Chromosome))) + geom_point(size=0.5, col="gold") + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free") + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Teosinte Chromosome") + xlab("Position")
 ```
 
 Reformats SNP data files for maize, teosinte - pivots genotype data from columns to rows, assigns each to sample. Filters by genotype to denote zygosity, adds column. Adds column to indicate group - allows for comparisons between groups, samples.
@@ -220,7 +221,7 @@ teosinte_vis$zygosity_value <- ifelse(teosinte_vis$Zygosity == "homozygous", 1,
          ifelse(teosinte_vis$Zygosity == "heterozygous", 0, NA))
 ```
 
-Takes mean value of homozygosity at each position, equal to the fraction of homozygous SNPs at each position, for each position on each chromosome across both groups
+Takes mean value of homozygosity at each position, equal to the fraction of homozygous SNPs at each position, removing missing data, for each position on each chromosome across both groups
 
 ```{r}
 maize_avg_homozygosity <- maize_vis %>%
@@ -231,11 +232,12 @@ teosinte_avg_homozygosity <- teosinte_vis %>%
      summarise(avg_homozygosity = mean(zygosity_value, na.rm = TRUE))
 ```
 
-Graphs average homozygosity value at each position, across each chromosome, for both maize and teosinte
+Graphs average homozygosity value at each position, across each chromosome, for both maize and teosinte. Maize appears to have higher proportion of homozygous SNPs compared to teosinte as previously seen, along with lower variability. Homozyogsity seems to be elevated towards the centromere of 7 in both groups, but it doesn't look like there's much regional bias towards homozygosity.
 
 ```{r}
+ggplot(data = maize_avg_homozygosity, mapping=aes(x=as.numeric(Position), y=avg_homozygosity)) + geom_point(size=0.5, col="red") + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free_x") + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Proportion Homozygous Maize SNPs") + coord_cartesian(ylim=c(0,1)) + geom_smooth(size=0.5) + xlab("Position")
 
+ggplot(data = teosinte_avg_homozygosity, mapping=aes(x=as.numeric(Position), y=avg_homozygosity)) + geom_point(size=0.5, col="gold") + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free_x") + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Proportion Homozygous Teosinte SNPs") + coord_cartesian(ylim=c(0,1)) + geom_smooth(size=0.5) + xlab("Position")
 ```
-
 
 
