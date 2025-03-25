@@ -1,0 +1,238 @@
+---
+title: "R_Assignment_WAB_FINAL"
+output:
+  html_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+### R Assignment
+
+# Initializing Tidyverse, loading source data files
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+fang_genos <- read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546_Spring2025/refs/heads/main/assignments/UNIX_Assignment/fang_et_al_genotypes.txt")
+snp_pos <- read_tsv("https://raw.githubusercontent.com/EEOB-BioData/BCB546_Spring2025/refs/heads/main/assignments/UNIX_Assignment/snp_position.txt")
+```
+
+# Data Inspection
+
+We can see what the start of each file looks like, and see total dimensions.
+
+```{r}
+head(fang_genos)
+dim(fang_genos)
+head(snp_pos)
+dim(snp_pos)
+```
+
+# Data Processing
+
+Selects desired columns from SNP information - SNP_ID, Chromosome, Position Filters maize groups to separate data frame - ZMMIL, ZMMLR, ZMMMR Filters teosinte groups to separate data frame - ZMPBA, ZMPIL, ZMPJA
+
+```{r}
+snps <- select(snp_pos, SNP_ID, Chromosome, Position)
+maize_genos <- fang_genos %>% 
+    filter(str_detect(Group, "ZMMIL|ZMMLR|ZMMMR"))
+teosinte_genos <- fang_genos %>% 
+    filter(str_detect(Group, "ZMPBA|ZMPIL|ZMPJA"))
+```
+
+Selects needed columns from maize/teosinte genotype data frames, transposes and enforces as a data frame, and converts row names to column, given column title "SNP_ID" (SNP IDs were column titles in original data set so transposing turned them into row titles, making the rownames a column allows us to use it as the common column for joining to SNP position data)
+
+```{r}
+maize_transposed <- rownames_to_column(as.data.frame(t(select(maize_genos, -(Sample_ID:Group)))), var = "SNP_ID")
+teosinte_transposed <- rownames_to_column(as.data.frame(t(select(teosinte_genos, -(Sample_ID:Group)))), var = "SNP_ID")
+```
+
+Merges transposed genotype data to SNP position data for both maize, teosinte. Common column used to join is SNP_ID
+
+```{r}
+maize_snps <- merge(snps, maize_transposed)
+teosinte_snps <- merge(snps, teosinte_transposed)
+```
+
+Filters out SNPs with unknown or multiple positions - result files contain only SNPs with known position on a known chromosome
+
+```{r}
+maize_snps <- maize_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
+teosinte_snps <- teosinte_snps %>% filter(!(Chromosome %in% c("multiple", "unknown") | Position %in% c("multiple", "unknown")))
+```
+
+Numerically sorts files by SNP position ascending, creates new set of data frames sorting files numerically by SNP position descending
+
+```{r}
+maize_snps <- arrange(maize_snps, as.numeric(Position))
+teosinte_snps <- arrange(teosinte_snps, as.numeric(Position))
+maize_snps_desc <- arrange(maize_snps, desc(as.numeric(Position)))
+teosinte_snps_desc <- arrange(teosinte_snps, desc(as.numeric(Position)))
+```
+
+Replaces ?/? genotypes with -/- in descending sorted files
+
+```{r}
+maize_snps_desc[maize_snps_desc == "?/?"] <- "-/-"
+teosinte_snps_desc[teosinte_snps_desc == "?/?"] <- "-/-"
+```
+
+Separates maize SNP data into data frames for each chromosome, both ascending and descending by position, saves as .txt files in /Result_Files folder
+
+```{r}
+maize_1 <- filter(maize_snps, Chromosome == 1)
+write_tsv(maize_1, file="Result_Files/maize_1.txt")
+maize_2 <- filter(maize_snps, Chromosome == 2)
+write_tsv(maize_2, file="Result_Files/maize_2.txt")
+maize_3 <- filter(maize_snps, Chromosome == 3)
+write_tsv(maize_3, file="Result_Files/maize_3.txt")
+maize_4 <- filter(maize_snps, Chromosome == 4)
+write_tsv(maize_4, file="Result_Files/maize_4.txt")
+maize_5 <- filter(maize_snps, Chromosome == 5)
+write_tsv(maize_5, file="Result_Files/maize_5.txt")
+maize_6 <- filter(maize_snps, Chromosome == 6)
+write_tsv(maize_6, file="Result_Files/maize_6.txt")
+maize_7 <- filter(maize_snps, Chromosome == 7)
+write_tsv(maize_7, file="Result_Files/maize_7.txt")
+maize_8 <- filter(maize_snps, Chromosome == 8)
+write_tsv(maize_8, file="Result_Files/maize_8.txt")
+maize_9 <- filter(maize_snps, Chromosome == 9)
+write_tsv(maize_9, file="Result_Files/maize_9.txt")
+maize_10 <- filter(maize_snps, Chromosome == 10)
+write_tsv(maize_10, file="Result_Files/maize_10.txt")
+
+maize_1_desc <- filter(maize_snps_desc, Chromosome == 1)
+write_tsv(maize_1_desc, file="Result_Files/maize_1_desc.txt")
+maize_2_desc <- filter(maize_snps_desc, Chromosome == 2)
+write_tsv(maize_2_desc, file="Result_Files/maize_2_desc.txt")
+maize_3_desc <- filter(maize_snps_desc, Chromosome == 3)
+write_tsv(maize_3_desc, file="Result_Files/maize_3_desc.txt")
+maize_4_desc <- filter(maize_snps_desc, Chromosome == 4)
+write_tsv(maize_4_desc, file="Result_Files/maize_4_desc.txt")
+maize_5_desc <- filter(maize_snps_desc, Chromosome == 5)
+write_tsv(maize_5_desc, file="Result_Files/maize_5_desc.txt")
+maize_6_desc <- filter(maize_snps_desc, Chromosome == 6)
+write_tsv(maize_6_desc, file="Result_Files/maize_6_desc.txt")
+maize_7_desc <- filter(maize_snps_desc, Chromosome == 7)
+write_tsv(maize_7_desc, file="Result_Files/maize_7_desc.txt")
+maize_8_desc <- filter(maize_snps_desc, Chromosome == 8)
+write_tsv(maize_8_desc, file="Result_Files/maize_8_desc.txt")
+maize_9_desc <- filter(maize_snps_desc, Chromosome == 9)
+write_tsv(maize_9_desc, file="Result_Files/maize_9_desc.txt")
+maize_10_desc <- filter(maize_snps_desc, Chromosome == 10)
+write_tsv(maize_10_desc, file="Result_Files/maize_10_desc.txt")
+```
+
+Separates teosinte SNP data into data frames for each chromosome, both ascending and descending by position, saves as .txt files in /Result_Files folder
+
+```{r}
+teosinte_1 <- filter(teosinte_snps, Chromosome == 1)
+write_tsv(teosinte_1, file="Result_Files/teosinte_1.txt")
+teosinte_2 <- filter(teosinte_snps, Chromosome == 2)
+write_tsv(teosinte_2, file="Result_Files/teosinte_2.txt")
+teosinte_3 <- filter(teosinte_snps, Chromosome == 3)
+write_tsv(teosinte_3, file="Result_Files/teosinte_3.txt")
+teosinte_4 <- filter(teosinte_snps, Chromosome == 4)
+write_tsv(teosinte_4, file="Result_Files/teosinte_4.txt")
+teosinte_5 <- filter(teosinte_snps, Chromosome == 5)
+write_tsv(teosinte_5, file="Result_Files/teosinte_5.txt")
+teosinte_6 <- filter(teosinte_snps, Chromosome == 6)
+write_tsv(teosinte_6, file="Result_Files/teosinte_6.txt")
+teosinte_7 <- filter(teosinte_snps, Chromosome == 7)
+write_tsv(teosinte_7, file="Result_Files/teosinte_7.txt")
+teosinte_8 <- filter(teosinte_snps, Chromosome == 8)
+write_tsv(teosinte_8, file="Result_Files/teosinte_8.txt")
+teosinte_9 <- filter(teosinte_snps, Chromosome == 9)
+write_tsv(teosinte_9, file="Result_Files/teosinte_9.txt")
+teosinte_10 <- filter(teosinte_snps, Chromosome == 10)
+write_tsv(teosinte_10, file="Result_Files/teosinte_10.txt")
+
+teosinte_1_desc <- filter(teosinte_snps_desc, Chromosome == 1)
+write_tsv(teosinte_1_desc, file="Result_Files/teosinte_1_desc.txt")
+teosinte_2_desc <- filter(teosinte_snps_desc, Chromosome == 2)
+write_tsv(teosinte_2_desc, file="Result_Files/teosinte_2_desc.txt")
+teosinte_3_desc <- filter(teosinte_snps_desc, Chromosome == 3)
+write_tsv(teosinte_3_desc, file="Result_Files/teosinte_3_desc.txt")
+teosinte_4_desc <- filter(teosinte_snps_desc, Chromosome == 4)
+write_tsv(teosinte_4_desc, file="Result_Files/teosinte_4_desc.txt")
+teosinte_5_desc <- filter(teosinte_snps_desc, Chromosome == 5)
+write_tsv(teosinte_5_desc, file="Result_Files/teosinte_5_desc.txt")
+teosinte_6_desc <- filter(teosinte_snps_desc, Chromosome == 6)
+write_tsv(teosinte_6_desc, file="Result_Files/teosinte_6_desc.txt")
+teosinte_7_desc <- filter(teosinte_snps_desc, Chromosome == 7)
+write_tsv(teosinte_7_desc, file="Result_Files/teosinte_7_desc.txt")
+teosinte_8_desc <- filter(teosinte_snps_desc, Chromosome == 8)
+write_tsv(teosinte_8_desc, file="Result_Files/teosinte_8_desc.txt")
+teosinte_9_desc <- filter(teosinte_snps_desc, Chromosome == 9)
+write_tsv(teosinte_9_desc, file="Result_Files/teosinte_9_desc.txt")
+teosinte_10_desc <- filter(teosinte_snps_desc, Chromosome == 10)
+write_tsv(teosinte_10_desc, file="Result_Files/teosinte_10_desc.txt")
+```
+
+# Data Visualization
+
+Plotting position of SNPs on X axis from pter to qter for both maize and teosinte. No difference can be seen across each chromosome in each species - no difference in SNP distribution between maize and teosinte. Plots are saved as .png images in the /Plots folder.
+
+```{r}
+ggplot(data=maize_snps, mapping=aes(x=as.numeric(Position), y=as.numeric(Chromosome))) + geom_point(size=0.5, col="red") + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free") + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Maize Chromosome") + xlab("Position")
+ggsave("Plots/Maize_SNP_Distribution.png", plot=last_plot(), scale=3)
+
+ggplot(data=teosinte_snps, mapping=aes(x=as.numeric(Position), y=as.numeric(Chromosome))) + geom_point(size=0.5, col="gold") + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free") + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Teosinte Chromosome") + xlab("Position")
+ggsave("Plots/Teosinte_SNP_Distribution.png", plot=last_plot(), scale=3)
+```
+
+Reformats SNP data files for maize, teosinte - pivots genotype data from columns to rows, assigns each to sample. Filters by genotype to denote zygosity, adds column. Adds column to indicate group - allows for comparisons between groups, samples.
+
+```{r}
+maize_vis <- pivot_longer(maize_snps, cols = !1:3, names_to = "Sample", values_to = "Genotype")
+maize_vis$Zygosity <- case_when(maize_vis$Genotype == "A/A" ~ "homozygous", maize_vis$Genotype == "C/C" ~ "homozygous", maize_vis$Genotype == "G/G" ~ "homozygous", maize_vis$Genotype == "T/T" ~ "homozygous", maize_vis$Genotype == "?/?" ~ "missing", .default = "heterozygous" )
+teosinte_vis <- pivot_longer(teosinte_snps, cols = !1:3, names_to = "Sample", values_to = "Genotype")
+teosinte_vis$Zygosity <- case_when(teosinte_vis$Genotype == "A/A" ~ "homozygous", teosinte_vis$Genotype == "C/C" ~ "homozygous", teosinte_vis$Genotype == "G/G" ~ "homozygous", teosinte_vis$Genotype == "T/T" ~ "homozygous", teosinte_vis$Genotype == "?/?" ~ "missing", .default = "heterozygous" )
+maize_vis$Group <- "Maize"
+teosinte_vis$Group <- "Teosinte"
+```
+
+Combines maize and teosinte visualization data frames into one for comparisons between groups
+
+```{r}
+combined_vis <- rbind(maize_vis, teosinte_vis)
+```
+
+Plots proportion of heterozygous, homozygous, and missing SNPs for each chromosome in maize and teosinte samples. Visualizing shows teosinte data appear to contain larger fraction heterozygous SNPs than maize data. Plot saved to /Plots folder as .png file. 
+
+```{r}
+ggplot(data= combined_vis) + geom_bar(mapping = aes(x = as.numeric(Chromosome), fill=Zygosity), position = "fill") + facet_wrap(~Group, strip.position="bottom") + scale_x_continuous(breaks = seq(0, 10, by = 1)) + xlab("Chromosome") + ylab("Proportion")
+ggsave("Plots/Zygosity_Proportions.png", plot=last_plot(), scale=3)
+```
+
+Are runs of homozygosity seen in either teosinte or maize? Calculating mean homozygosity at each SNP position - fraction of homozygous SNPs at each position. 
+Assigns a value of 1 to homozygous SNPs, 0 to heterozygous SNPs, and NA for missing SNPs 
+```{r}
+maize_vis$zygosity_value <- ifelse(maize_vis$Zygosity == "homozygous", 1,
+         ifelse(maize_vis$Zygosity == "heterozygous", 0, NA))
+teosinte_vis$zygosity_value <- ifelse(teosinte_vis$Zygosity == "homozygous", 1,
+         ifelse(teosinte_vis$Zygosity == "heterozygous", 0, NA))
+```
+
+Takes mean value of homozygosity at each position, equal to the fraction of homozygous SNPs at each position, removing missing data, for each position on each chromosome across both groups
+
+```{r}
+maize_avg_homozygosity <- maize_vis %>%
+     group_by(Chromosome, Position) %>%
+     summarise(avg_homozygosity = mean(zygosity_value, na.rm = TRUE))
+teosinte_avg_homozygosity <- teosinte_vis %>%
+     group_by(Chromosome, Position) %>%
+     summarise(avg_homozygosity = mean(zygosity_value, na.rm = TRUE))
+```
+
+Graphs average homozygosity value at each position, across each chromosome, for both maize and teosinte. Maize appears to have higher proportion of homozygous SNPs compared to teosinte as previously seen, along with lower variability. Homozyogsity seems to be elevated towards the centromere of 7 in both groups (which may be an artifact from lack of pericentromeric coverage), but it doesn't look like there's much regional bias towards homozygosity. Plots saved to /Plots folder as .png files.
+
+```{r}
+ggplot(data = maize_avg_homozygosity, mapping=aes(x=as.numeric(Position), y=avg_homozygosity)) + geom_point(size=0.5, col="red") + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free_x") + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Proportion Homozygous Maize SNPs") + coord_cartesian(ylim=c(0,1)) + geom_smooth(size=0.5) + xlab("Position")
+ggsave("Plots/Maize_Homozygosity_Map.png", plot=last_plot(), scale=3)
+
+ggplot(data = teosinte_avg_homozygosity, mapping=aes(x=as.numeric(Position), y=avg_homozygosity)) + geom_point(size=0.5, col="gold") + facet_wrap(~as.numeric(Chromosome), strip.position="bottom", scales="free_x") + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +ylab("Proportion Homozygous Teosinte SNPs") + coord_cartesian(ylim=c(0,1)) + geom_smooth(size=0.5) + xlab("Position")
+ggsave("Plots/Teosinte_Homozygosity_Map.png", plot=last_plot(), scale=3)
+```
+
+
