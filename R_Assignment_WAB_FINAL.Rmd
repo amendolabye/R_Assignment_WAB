@@ -23,9 +23,9 @@ We can see what the start of each file looks like, and see total dimensions.
 
 ```{r}
 head(fang_genos)
-dim(fang_genos)
+paste0("fang_et_al_genotypes.txt has ", dim(fang_genos)[1], " rows and ", dim(fang_genos)[2], " columns.")
 head(snp_pos)
-dim(snp_pos)
+paste0("snp_positions.txt has ", dim(snp_pos)[1], " rows and ", dim(snp_pos)[2], " columns.")
 ```
 
 # Data Processing
